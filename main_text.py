@@ -1,7 +1,8 @@
-import pprint as pp
-from collections import Counter
-from time import sleep
-
+# Imports
+import pprint as pp # for output
+from collections import Counter # for more efficient counting
+from time import sleep # for adding delay
+# start board
 unsolvedBoard = [
     [4,2,0,  9,8,0,  5,1,0],
     [5,0,7,  4,0,3,  0,8,9],
@@ -15,16 +16,19 @@ unsolvedBoard = [
     [0,0,0,  0,4,1,  3,2,0],
     [2,4,1,  0,3,0,  7,9,0]
 ]
+# program will use 'board' variable
 board = unsolvedBoard
 
-
+# solve function
 def solve():
+    # get list of all 0's in list
     idxList = []
     for y in range(len(board)):
         for x in range(len(board)):
             row = board[y]
             if row[x] == 0:
                 idxList.append([x,y])
+    # start loop
     solved = False
     idx = 0
     while not solved:
@@ -32,33 +36,50 @@ def solve():
         # get coords
         x,y = idxList[idx]
         
-        # increment number
+        # if number is too high
         if board[y][x]+1 > 9:
+            # reset number, go backwards
             board[y][x] = 0
             idx -=1
             continue
-        
+        # increment number
         board[y][x] +=1
         number = board[y][x]
         # check constraints
         rowcheck = checkRow(board[y][x], y)
         colcheck = checkColumn(board[y][x], x)
-        box = int(x/3) + int(y/3)
+        box = int(x/3) + int(y/3) # get box position
         boxcheck = checkBox(board[y][x], box)
         if rowcheck and colcheck and boxcheck:
+            # if valid, move forward
             idx+= 1
             if idx > len(idxList)-1:
                 solved = True
-
+        
         sleep(0)
-        if x == 8 and y == 3:
-            
-            pass
                 
     pp.pprint(board)
-            
-        
-            
+
+def checkBoard():
+      # get list of numbers in list
+    idxList = []
+    for y in range(len(board)):
+        for x in range(len(board)):
+            idxList.append([x,y])  
+    idx = 0
+    for i in range(81):
+      x,y = idxList[idx]
+      # check
+      rowcheck = checkRow(board[y][x], y)
+      colcheck = checkColumn(board[y][x], x)
+      box = int(x/3) + int(y/3) # get box position
+      boxcheck = checkBox(board[y][x], box)
+      if rowcheck and colcheck and boxcheck:
+          # if valid, move forward
+          idx+= 1
+      else: 
+        return False
+    return True
 
 def checkRow(num, row_idx):
     # get row list
@@ -117,5 +138,9 @@ def checkBox(num, box_idx):
 
 
 pp.pprint(unsolvedBoard)
-print()
+
+print('\n')
+
 solve()
+
+print(checkBoard())
