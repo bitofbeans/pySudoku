@@ -2,7 +2,11 @@
 import pygame as pg
 # import sudoku solver/checker (by me)
 import solver as s
+# import pprint for cleaner printing
 import pprint as pp
+
+# ---------------------------------- #
+
 # add board
 board = [
     [4,2,0,  9,8,0,  5,1,0],
@@ -33,25 +37,35 @@ solvedBoard = [
 ]
 # create solver sprite
 solver = s.Solver([])
+# solve alt board
 solvedBoard = solver.solve(solvedBoard)
+
+# ---------------------------------- #
+
 # begin pygame
 pg.init()
+
 # open window
 SIZE = 50
 SCREEN_WIDTH = 450 + 9*2
 SCREEN_HEIGHT = 450 + SIZE + 9*2
 screen = pg.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 pg.display.set_caption('Sudoku')
+
 # set tps
 clock = pg.time.Clock()
 fps = 60
+
 # set font
 font = pg.font.SysFont('freesansbold', 40)
-# functions ---------------
+
+# functions ------------------------ #
+
 # draw text
 def drawText(text, font, color, x, y):
     img = font.render(text, True, color)
     screen.blit(img, (x, y))
+# ---------------------------------- #
 
 def renderBoard():
     # RENDER SQUARES AND LINES
@@ -67,7 +81,7 @@ def renderBoard():
         squares.append(square)
         squareCoords.append((x,y))
         # draw squares
-        pg.draw.rect(screen,(200,200,200),square)
+        pg.draw.rect(screen,(200,200,200),square,border_radius=4)
         if x == 3 or x == 6:
           # vertical lines
           pg.draw.line(screen,(0,0,0),(posx-1,0),(posx-1,468),4)
@@ -81,11 +95,14 @@ def renderBoard():
     pg.draw.rect(screen,(255,255,255),bottom)
     pg.draw.line(screen,(100,100,100),(0,460),(SCREEN_WIDTH,460),4)
     return squares, squareCoords
+    
+# ---------------------------------- #
 
 def boardLogic(board, solvedBoard):
   global selected
   square = squares[selected]
-  pg.draw.rect(screen,(255,0,0),square,width = 5, border_radius=4) 
+  pg.draw.rect(screen,(255,0,0),square,width = 3, border_radius=4) 
+  
   # get selected from click
   mouse = pg.mouse.get_pos()
   i = 0
@@ -94,6 +111,7 @@ def boardLogic(board, solvedBoard):
       if pg.mouse.get_pressed()[0] == True:
         selected = i
     i += 1
+
   # change from player in
   keys = pg.key.get_pressed()
   coord = squareCoords[selected]
@@ -102,8 +120,9 @@ def boardLogic(board, solvedBoard):
     if solvedBoard[y][x] == key:
       board[y][x] = key   
     else:
-      pass
-
+      square = squares[selected]
+      pg.draw.rect(screen,(255,0,0),square, border_radius=4) 
+  # inputs
   if keys[pg.K_1]:
     tryKey(1)
   if keys[pg.K_2]:
@@ -122,14 +141,22 @@ def boardLogic(board, solvedBoard):
     tryKey(8)
   if keys[pg.K_9]:
     tryKey(9)
-
+  
+  # return board changes
   return board, solvedBoard
 
+# ---------------------------------- #
+
+# global which selected square
 global selected
 selected = 0
 
+# ---------------------------------- #
+
 # game loop
+
 run = True
+
 while run:
     # tick clock
     clock.tick(fps)
@@ -142,6 +169,7 @@ while run:
      #render
     screen.fill((255,255,255))
     renderBoard()
+    # board logic
     board, solvedBoard = boardLogic(board, solvedBoard)
 
     # update screen

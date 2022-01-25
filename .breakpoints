@@ -1,32 +1,3 @@
 {
-  "files": {
-    "main.py": [
-      {
-        "id": "091484a5-150c-444d-b134-2be1e64c6f75",
-        "line": 22,
-        "version": 2771,
-        "index": 446
-      },
-      {
-        "id": "04c8677c-ae2f-4477-9b2e-0086dc83954e",
-        "line": 23,
-        "version": 2771,
-        "index": 469
-      },
-      {
-        "id": "4998a221-f76e-4d49-92ea-215db05f1458",
-        "line": 24,
-        "version": 2771,
-        "index": 491
-      }
-    ],
-    "solver.py": [
-      {
-        "id": "c593b3f8-7887-414e-8042-a67874182ec5",
-        "line": 50,
-        "version": 410,
-        "index": 1472
-      }
-    ]
-  }
+  "files": {}
 }
