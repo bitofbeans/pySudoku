@@ -126,3 +126,10 @@ def checkBox(board_in, num, box_idx):
         # return valid
         return True
 
+def countNum(board_in, num):
+        # get dictionary of counts of numbers
+    board_in = [item for sublist in board_in for item in sublist]
+    counter = Counter(board_in)
+    # get count of num in box
+    count = counter[num]
+    return count
