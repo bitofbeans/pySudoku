@@ -13,21 +13,21 @@ import random
 import os
 
 # INITIALIZE -------------- -------- #
- # begin pygame
+ # Begin Pygame
 pygame.init()
 
-# open window
+# Open window
 SIZE = 50
 SCREEN_WIDTH = 450 + 9*2
 SCREEN_HEIGHT = 450 + SIZE + 9*2
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 pygame.display.set_caption('Sudoku')
 
-# set tps
+# Set clock
 clock = pygame.time.Clock()
 fps = 60
 
-# set font
+# Set fonts
 fontPath = os.path.abspath("source/segoe_light.ttf")
 font = pygame.font.Font(fontPath, 35)
 fontSmall = pygame.font.Font(fontPath, 20)
@@ -35,7 +35,7 @@ fontPath = os.path.abspath("source/segoe_bold.ttf")
 fontThick = pygame.font.Font(fontPath, 35)
 fontSmallThick = pygame.font.Font(fontPath, 25)
 
-# define colors
+# Define colors
 WHITE = (255,255,255)
 BLACK = (0,0,0)
 LGREY = (200,200,200)
@@ -43,7 +43,7 @@ DGREY = (100,100,100)
 FONT =  (60,80,105)
 FONT_ALT = (90,160,90)
 
-# data file
+# Data file for puzzle inputs
 DATA_FILE= 'source/generated_puzzles.json'
 
 # FUNCTIONS ------------------------- #
@@ -64,23 +64,22 @@ def loadData(input):
     # Load file
     with open(DATA_FILE, "r") as read_file:
         data = json.load(read_file)
-    if input != '':
-        return data[input]
+    return data[input]
     
 # SUDOKU SPRITE---------------------- #
 class Sudoku():
   def __init__(self, board_in, solved =None):
     # get boards for play
-     # board to modify
+     # make board to modify
     self.board = copy.deepcopy(board_in)
-     # default unsolved board
+     # make unsolved board
     self.unsolvedBoard = copy.deepcopy(board_in)
-     # default solved board
+     # make solved board
     self.solvedBoard = copy.deepcopy(solved)
-     # default ghost board
+     # make ghost board
     self.ghostBoard = copy.deepcopy(board_in)
 
-    # lists
+    # lists for square data
     self.squares = []
     self.squareCoords = []
     # variables
@@ -93,13 +92,13 @@ class Sudoku():
     self.tabpressed = False
      # number of strikes
     self.strikes = 0
+     # ghost board and bool for ghost enabled
     self.ghost_selected = []
     self.ghostmode = False
     
-
   def renderBoard(self):
     # RENDER SQUARES AND LINES
-    # use global lists
+    # empty lists
     self.squares = []
     self.squareCoords = []
     
@@ -126,6 +125,7 @@ class Sudoku():
           # draw text if not a 0
           drawText(str(self.board[y][x]), font, FONT, posx+25, posy+25)
         elif not self.ghostBoard[y][x] == 0:
+          # draw ghost text if exists
           drawText(str(self.ghostBoard[y][x]), fontThick, FONT, posx+25, posy+25)
           
       if y == 3 or y == 6:
@@ -136,8 +136,11 @@ class Sudoku():
     bottom = pygame.rect.Rect(0,468,SCREEN_WIDTH,SIZE)
     pygame.draw.rect(screen,WHITE,bottom)
     pygame.draw.line(screen,DGREY,(0,468),(SCREEN_WIDTH,468),3)
+    # bottom text
     drawText(f"Ghost Mode (Tab): {self.ghostmode}",fontSmall, FONT, SCREEN_WIDTH/2, 493, align='lc')
     drawText("X "*self.strikes, fontSmallThick, (194,0,42), 50, 494, align='c')
+    
+    # draw overlay for win condition
     if self.win != 0:
       fill = pygame.Surface((1000,750))  
       fill.set_alpha(200)                
@@ -153,10 +156,10 @@ class Sudoku():
   def boardLogic(self):
     # get square rect of selected
     square = self.squares[self.selected]
-    
     # get coord of selected square
     coord = self.squareCoords[self.selected]
     x,y = coord
+    
     # render cursor
     if self.win == 0:
       if self.board[y][x] == 0:
@@ -168,7 +171,7 @@ class Sudoku():
         pygame.draw.rect(screen,(0,150,0),square,width = 5, border_radius=10)
         pygame.draw.rect(screen,(0,200,0),square,width = 3, border_radius=10) 
       
-    # get selected from click
+    # get selected from mouse position
     mouse = pygame.mouse.get_pos()
     i = 0
     for square in self.squares:
@@ -190,7 +193,7 @@ class Sudoku():
       coord = self.squareCoords[self.selected]
       x,y = coord
       if self.win != 0 or self.board[y][x] != 0:
-        # if not in main game or if item is already taken
+        # if already won or lost / if item is already taken
         return
       if self.solvedBoard[y][x] == key:
           self.board[y][x] = key
@@ -296,11 +299,15 @@ class Sudoku():
     return False
 
 # ---------------------------------- #
+# pick random puzzle
 randomInt = random.randint(0,100)
+# load random puzzle
 board = loadData(f"puzzle{randomInt}")
 solution = loadData(f"solution{randomInt}")
 
+# instance of sudoku sprite with inputs
 sudoku = Sudoku(board, solved=solution)
+
 # game loop -------------- #
 run = True
 while run:
@@ -315,7 +322,9 @@ while run:
     # sudoku logic ------- #
     sudoku.renderBoard()
     if sudoku.boardLogic(): # if reset
+      # delete sudoku board
       del sudoku
+      # recreate sudoku
       randomInt = random.randint(0,100)
       board = loadData(f"puzzle{randomInt}")
       solution = loadData(f"solution{randomInt}")
