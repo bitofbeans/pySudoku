@@ -30,8 +30,9 @@ fps = 60
 # set font
 fontPath = os.path.abspath("source/segoe_light.ttf")
 font = pygame.font.Font(fontPath, 35)
-fontSmall = pygame.font.Font(fontPath, 25)
+fontSmall = pygame.font.Font(fontPath, 20)
 fontPath = os.path.abspath("source/segoe_bold.ttf")
+fontThick = pygame.font.Font(fontPath, 35)
 fontSmallThick = pygame.font.Font(fontPath, 25)
 
 # define colors
@@ -40,6 +41,7 @@ BLACK = (0,0,0)
 LGREY = (200,200,200)
 DGREY = (100,100,100)
 FONT =  (60,80,105)
+FONT_ALT = (90,160,90)
 
 # data file
 DATA_FILE= 'source/generated_puzzles.json'
@@ -75,6 +77,8 @@ class Sudoku():
     self.unsolvedBoard = copy.deepcopy(board_in)
      # default solved board
     self.solvedBoard = copy.deepcopy(solved)
+     # default ghost board
+    self.ghostBoard = copy.deepcopy(board_in)
 
     # lists
     self.squares = []
@@ -86,8 +90,12 @@ class Sudoku():
     self.selected = 0
      # key that is pressed
     self.pressed = 0
+    self.tabpressed = False
      # number of strikes
     self.strikes = 0
+    self.ghost_selected = []
+    self.ghostmode = False
+    
 
   def renderBoard(self):
     # RENDER SQUARES AND LINES
@@ -117,7 +125,9 @@ class Sudoku():
         if not self.board[y][x] == 0:
           # draw text if not a 0
           drawText(str(self.board[y][x]), font, FONT, posx+25, posy+25)
-      
+        elif not self.ghostBoard[y][x] == 0:
+          drawText(str(self.ghostBoard[y][x]), fontThick, FONT, posx+25, posy+25)
+          
       if y == 3 or y == 6:
         # horizontal lines
         pygame.draw.line(screen,DGREY,(0,posy-1),(SCREEN_WIDTH,posy-1),3)
@@ -126,7 +136,7 @@ class Sudoku():
     bottom = pygame.rect.Rect(0,468,SCREEN_WIDTH,SIZE)
     pygame.draw.rect(screen,WHITE,bottom)
     pygame.draw.line(screen,DGREY,(0,468),(SCREEN_WIDTH,468),3)
-    drawText(f"Remaining Spots: {s.countNum(self.board,0)}",fontSmall, FONT, SCREEN_WIDTH/2, 493, align='lc')
+    drawText(f"Ghost Mode (Tab): {self.ghostmode}",fontSmall, FONT, SCREEN_WIDTH/2, 493, align='lc')
     drawText("X "*self.strikes, fontSmallThick, (194,0,42), 50, 494, align='c')
     if self.win != 0:
       fill = pygame.Surface((1000,750))  
@@ -141,16 +151,13 @@ class Sudoku():
         drawText("Press Space to restart...", font, FONT, SCREEN_WIDTH/2, SCREEN_HEIGHT/2+50)
 
   def boardLogic(self):
-    # use global selected variable
-
     # get square rect of selected
     square = self.squares[self.selected]
     
-    # render cursor
     # get coord of selected square
     coord = self.squareCoords[self.selected]
     x,y = coord
-    
+    # render cursor
     if self.win == 0:
       if self.board[y][x] == 0:
         # yellow thing
@@ -180,46 +187,98 @@ class Sudoku():
     
     # see if key works
     def tryKey(key):
-      if self.win != 0:
-        return
-      if self.board[y][x] != 0:
+      coord = self.squareCoords[self.selected]
+      x,y = coord
+      if self.win != 0 or self.board[y][x] != 0:
+        # if not in main game or if item is already taken
         return
       if self.solvedBoard[y][x] == key:
-        self.board[y][x] = key   
+          self.board[y][x] = key
       else:
         square = self.squares[self.selected]
         pygame.draw.rect(screen,(100,0,0),square,width = 0, border_radius=10)
         pygame.draw.rect(screen,(200,0,0),square,width = 5, border_radius=10) 
-
-        if self.pressed != key:
-          self.pressed = key
-          self.strikes += 1
+        self.ghostBoard[y][x] = 0
+        
+        self.strikes += 1
+        if self.strikes > 3:
+          self.strikes = 3
     
+    # add key to ghost
+    def addKey(key_in):
+      if self.pressed == key_in: return
+      self.pressed = key_in
+      self.ghostBoard[y][x] = key_in
+      # remove any duplicates
+      i = 0
+      for elem in self.ghost_selected:
+        if elem[1] == self.selected:
+          self.ghost_selected.pop(i)
+        i +=1
+      self.ghost_selected.append((key_in,self.selected))
     # inputs
-    if keys[pygame.K_1]:
-      tryKey(1)
-    elif keys[pygame.K_2]:
-      tryKey(2)
-    elif keys[pygame.K_3]:
-      tryKey(3)
-    elif keys[pygame.K_4]:
-      tryKey(4)
-    elif keys[pygame.K_5]:
-      tryKey(5)
-    elif keys[pygame.K_6]:
-      tryKey(6)
-    elif keys[pygame.K_7]:
-      tryKey(7)
-    elif keys[pygame.K_8]:
-      tryKey(8)
-    elif keys[pygame.K_9]:
-      tryKey(9)
-    elif keys[pygame.K_p]:
-      # auto solve
-      self.board = copy.deepcopy(self.solvedBoard)
-    else:
-      self.pressed = 0
     
+    if keys[pygame.K_TAB] and self.tabpressed == False:
+      self.tabpressed = True
+      if self.ghostmode is True:
+        self.ghostmode = False
+        self.ghostBoard = copy.deepcopy(board)
+      else: self.ghostmode = True
+    elif not keys[pygame.K_TAB]: self.tabpressed = False
+    
+    if keys[pygame.K_1]:
+      addKey(1)
+    elif keys[pygame.K_2]:
+      addKey(2)
+    elif keys[pygame.K_3]:
+      addKey(3)
+    elif keys[pygame.K_4]:
+      addKey(4)
+    elif keys[pygame.K_5]:
+      addKey(5)
+    elif keys[pygame.K_6]:
+      addKey(6)
+    elif keys[pygame.K_7]:
+      addKey(7)
+    elif keys[pygame.K_8]:
+      addKey(8)
+    elif keys[pygame.K_9]:
+      addKey(9)
+    elif not keys[pygame.K_RETURN]:
+      self.pressed = 0
+    elif keys[pygame.K_BACKSPACE]:
+      # Delete item
+      self.ghostBoard[y][x] = 0
+      i = 0
+      for key in self.ghost_selected:
+        if key[1] == self.selected:
+          self.ghost_selected.pop(i)
+        i +=1
+    
+    elif keys[pygame.K_p]:
+      self.board = copy.deepcopy(self.solvedBoard) # instant solve
+    
+    # If input board has changed
+    if self.board != self.ghostBoard:
+      if (self.ghostmode and keys[pygame.K_RETURN] and self.pressed != 'return') or (self.ghostmode is not True):
+          if keys[pygame.K_RETURN]:
+            self.pressed = 'return'
+          # update board
+          temp = self.selected
+          for elem in self.ghost_selected:
+            self.selected = elem[1]
+            tryKey(elem[0])
+          self.selected = temp
+      elif not keys[pygame.K_RETURN]:
+        self.pressed = 0 
+    i
+    # if won or lost
+    if self.board == self.solvedBoard:
+      # if won
+      self.win = 1 
+    if self.strikes >= 3:
+      # if lost
+      self.win = -1
     if self.win == 1:
       if keys[pygame.K_SPACE]:
         # restart on space
@@ -234,13 +293,6 @@ class Sudoku():
         self.board = copy.deepcopy(self.unsolvedBoard)
         self.strikes = 0
         return True
-    
-    if self.board == self.solvedBoard:
-      # if won
-      self.win = 1 
-    if self.strikes >= 3:
-      # if lost
-      self.win = -1
     return False
 
 # ---------------------------------- #
@@ -262,7 +314,7 @@ while run:
     screen.fill(LGREY)
     # sudoku logic ------- #
     sudoku.renderBoard()
-    if sudoku.boardLogic():
+    if sudoku.boardLogic(): # if reset
       del sudoku
       randomInt = random.randint(0,100)
       board = loadData(f"puzzle{randomInt}")
