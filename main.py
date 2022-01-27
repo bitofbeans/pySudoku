@@ -226,6 +226,7 @@ class Sudoku():
       if self.ghostmode is True:
         self.ghostmode = False
         self.ghostBoard = copy.deepcopy(board)
+        self.ghost_selected = []
       else: self.ghostmode = True
     elif not keys[pygame.K_TAB]: self.tabpressed = False
     
@@ -249,7 +250,7 @@ class Sudoku():
       addKey(9)
     elif not keys[pygame.K_RETURN]:
       self.pressed = 0
-    elif keys[pygame.K_BACKSPACE]:
+    if keys[pygame.K_0]:
       # Delete item
       self.ghostBoard[y][x] = 0
       i = 0
@@ -272,6 +273,7 @@ class Sudoku():
             self.selected = elem[1]
             tryKey(elem[0])
           self.selected = temp
+          self.ghost_selected = []
       elif not keys[pygame.K_RETURN]:
         self.pressed = 0 
     i
