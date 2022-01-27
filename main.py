@@ -2,14 +2,14 @@
  # import pygame for gui
 import pygame
  # import sudoku solver/checker (by me)
-import main_solver as s
+import source.main_solver as s
  # to copy lists without linking them AND keeping nested lists
 import copy
  # for storing puzzles
 import json
  # for random numbers
 import random
- # os
+ # for paths
 import os
 
 # INITIALIZE -------------- -------- #
@@ -28,10 +28,10 @@ clock = pygame.time.Clock()
 fps = 60
 
 # set font
-fontPath = os.path.abspath("segoe_light.ttf")
+fontPath = os.path.abspath("source/segoe_light.ttf")
 font = pygame.font.Font(fontPath, 35)
 fontSmall = pygame.font.Font(fontPath, 25)
-fontPath = os.path.abspath("segoe_bold.ttf")
+fontPath = os.path.abspath("source/segoe_bold.ttf")
 fontSmallThick = pygame.font.Font(fontPath, 25)
 
 # define colors
@@ -42,7 +42,7 @@ DGREY = (100,100,100)
 FONT =  (60,80,105)
 
 # data file
-DATA_FILE= 'generated_puzzles.json'
+DATA_FILE= 'source/generated_puzzles.json'
 
 # FUNCTIONS ------------------------- #
 def drawText(text, font, color, x, y, align='c'):

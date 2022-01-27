@@ -1,11 +1,11 @@
 # Generates sudoku puzzles for main.py
 import json,numpy
-import main_solver as s
+import source.main_solver as s
 from dokusan import generators
 import copy
 from typing import Union
 
-DATA_FILE= 'generated_puzzles.json'
+DATA_FILE= 'source/generated_puzzles.json'
 # Load data from .json
 def loadData(input): 
     # Load file
