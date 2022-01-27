@@ -9,6 +9,8 @@ import copy
 import json
  # for random numbers
 import random
+ # os
+import os
 
 # INITIALIZE -------------- -------- #
  # begin pygame
@@ -26,9 +28,11 @@ clock = pygame.time.Clock()
 fps = 60
 
 # set font
-font = pygame.font.SysFont("segoeuisemilight", 35)
-fontSmall = pygame.font.SysFont("segoeuisemilight", 25)
-fontSmallThick = pygame.font.SysFont("segoeuisemibold", 25)
+fontPath = os.path.abspath("segoe_light.ttf")
+font = pygame.font.Font(fontPath, 35)
+fontSmall = pygame.font.Font(fontPath, 25)
+fontPath = os.path.abspath("segoe_bold.ttf")
+fontSmallThick = pygame.font.Font(fontPath, 25)
 
 # define colors
 WHITE = (255,255,255)
