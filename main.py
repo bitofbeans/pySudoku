@@ -72,10 +72,6 @@ class Sudoku():
      # default solved board
     self.solvedBoard = copy.deepcopy(solved)
 
-    # get solver
-    solver = s.Solver([])
-    # solve alt board
-    self.solvedBoard = solver.solve(board_in)
     # lists
     self.squares = []
     self.squareCoords = []
@@ -226,12 +222,14 @@ class Sudoku():
         self.win = 0
         self.board = copy.deepcopy(self.unsolvedBoard)
         self.strikes = 0
+        return True
     if self.win == -1:
       if keys[pygame.K_SPACE]:
         # restart on space
         self.win = 0
         self.board = copy.deepcopy(self.unsolvedBoard)
         self.strikes = 0
+        return True
     
     if self.board == self.solvedBoard:
       # if won
@@ -239,10 +237,10 @@ class Sudoku():
     if self.strikes >= 3:
       # if lost
       self.win = -1
+    return False
 
 # ---------------------------------- #
 randomInt = random.randint(0,100)
-
 board = loadData(f"puzzle{randomInt}")
 solution = loadData(f"solution{randomInt}")
 
@@ -260,7 +258,12 @@ while run:
     screen.fill(LGREY)
     # sudoku logic ------- #
     sudoku.renderBoard()
-    sudoku.boardLogic()
+    if sudoku.boardLogic():
+      del sudoku
+      randomInt = random.randint(0,100)
+      board = loadData(f"puzzle{randomInt}")
+      solution = loadData(f"solution{randomInt}")
+      sudoku = Sudoku(board, solved=solution)
     # update screen ------ #
     pygame.display.update()
 # end --- #
